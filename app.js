@@ -10,6 +10,7 @@ const productRoutes = require('./api/routes/products'),
 const nodemon = require('./nodemon');
 
 app.use(morgan('dev'));    
+app.use('./uploads', express.static('uploads')); // make multer images public
 app.use(bodyParser.urlencoded({extended: false})); // for parsing application/x-www-form-urlencoded
 app.use(bodyParser.json()); // for parsing application/json
 
@@ -18,8 +19,8 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*'); // allow all urls
     res.header(
         'Access-Control-Allow-Headers', 
-        'Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization');
-    
+        'Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'
+    );
     if(req.method === 'OPTIONS') {
         req.header('Access-Control-Allow-Methods', 'POST', 'PATCH', 'DELETE', 'PUT', 'GET');
         return res.status(200).json({});

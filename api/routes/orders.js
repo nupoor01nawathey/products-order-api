@@ -87,9 +87,24 @@ router.get('/:orderId', (req, res, next) => {
 
 router.delete('/:orderId', (req, res, next) => {
     const orderId = req.params.orderId;
-    res.status(200).json({
-        message: 'Handing DELETE requests to /orders',
-        orderId: orderId
+    Order.findByIdAndRemove( {_id: orderId} )
+    .then(res => {
+        console.log(res);
+        res.status(200).json({
+            message: 'Deleted requested order id',
+            result: res
+        });
+    })
+    .catch( err => { // fix this ??
+        if(err.length > 0) {
+            res.status(500).json({
+                error: err
+            });
+        } else {
+            res.status(200).json({
+                message: 'Deleted requested order id' + orderId,
+            }); 
+        }
     });
 });
 

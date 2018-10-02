@@ -1,103 +1,21 @@
 const express = require('express'),
-     mongoose = require('mongoose'),
-       bcrypt = require('bcrypt'),
-       jwt    = require('jsonwebtoken'),
        router = express.Router();
 
-const User = require('../models/users');
+const UsersController = require('../controllers/users');
 
-router.post('/signup', (req, res, next) => {
-  User.find({email: req.body.email})
-  .then(user => {
-    if(user.length >= 1) { // if user not found then returns array hence check length
-      return res.status(409).json({ // send conflict http error code for existing user
-        message: 'Email already exists'
-      });
-    } else {
-      bcrypt.hash(req.body.password, 10, (err, hash) => { // save hash password in db
-        if(err) {
-          return res.status(500).json({
-            error: err
-          });
-        } else {
-          const user = new User({
-            _id: new mongoose.Types.ObjectId(),
-            email: req.body.email,
-            password: hash
-          });  
-           user.save()
-           .then(result => {
-             res.status(200).json({
-               message: 'User created successfully',
-               user: result
-             });
-           })
-           .catch(err => {
-              res.status(500).json({
-                error: err
-             });
-           }); 
-        }
-      });
-    }
-  });
-});
+router.post('/signup', UsersController.createUser);
 
-router.post('/login', (req, res, next) => {
-  User.findOne({email: req.body.email})
-  .then(user =>{
-    if(user.length > 1) {
-      return res.status(401).json({
-        messge: 'Auth failed'
-      });
-    }
-    bcrypt.compare(req.body.password, user.password, (err, result) => {
-      if(err) {
-        return res.status(401).json({ // error in email 
-          messge: 'Auth failed'
-        });
-      }
-      if(result) {
-        const token = jwt.sign({
-          email: user.email,
-          userId: user._id
-        }, 
-        process.env.JWT_KEY,
-        {
-          expiresIn: "24h"
-        }
-        );
-        res.status(200).json({
-          message: 'Auth successful',
-          token: token
-        });
-      }
-      res.status(401).json({ // error in password
-        messge: 'Auth failed'
-      });
-    });
-  })
-  .catch(err => { 
-    res.status(500).json({
-    error: err
-    });
-  });
-});
+router.post('/login', UsersController.loginUser);
 
-router.delete('/:userId', (req, res, next) => {
-  User.findByIdAndRemove({_id: req.params.userId})
-  .then(result => {
-    res.status(200).json({
-      message: 'User deleted successfully',
-      result: result
-    });
-  })
-  .catch(err => {
-    res.status(500).json({
-      error: err
-    });
-  });
-});
-
+router.delete('/:userId', UsersController.deleteUser);
 
 module.exports = router ;
+
+// {
+// 	"email": "test1@test.com",
+// 	"password": "test"
+// }
+// {
+//   "message": "Auth successful",
+//   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3QxQHRlc3QuY29tIiwidXNlcklkIjoiNWJiMGZlYTc5YWIyNzUwYzYxZTBhZThjIiwiaWF0IjoxNTM4NDA5ODkxLCJleHAiOjE1Mzg0OTYyOTF9.4uwG8k0pfp9VnzXS_ErsuTFEaayiA0Zp0oL_Cqgc414"
+// }

@@ -5,14 +5,15 @@ const express     = require('express'),
        app        = express();
 
 const productRoutes = require('./api/routes/products'),
-      orderRoutes   = require('./api/routes/orders');
+      orderRoutes   = require('./api/routes/orders'),
+      userRoutes    = require('./api/routes/users');
 
 const nodemon = require('./nodemon');
 
 app.use(morgan('dev'));    
 app.use('./uploads', express.static('uploads')); // make multer images public
-app.use(bodyParser.urlencoded({extended: false})); // for parsing application/x-www-form-urlencoded
-app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({limit: '50mb',extended: true})); // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.json({limit: '50mb'})); // for parsing application/json
 
 // handle cross origin resource sharing, allow clients to access restful api urls
 app.use((req, res, next) => {
@@ -37,7 +38,7 @@ mongoose.connect(
 // Handle products and orders routes
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
-
+app.use('/users', userRoutes);
 
 app.use((req, res, next) => {
     const error = new Error('Not found');

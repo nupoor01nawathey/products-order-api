@@ -1,3 +1,6 @@
 {
-    "env" : { "ATLAS_MONGO_PW" : "root" }
+    "env" : { 
+        "ATLAS_MONGO_PW" : "<your_mongo_atlas_pwd>" ,
+        "JWT_KEY": "your_secret_key"
+    }
 }

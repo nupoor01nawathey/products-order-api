@@ -1,8 +1,6 @@
 # products-order-api
 products and order RESTful API using node express and mongoose
 
-
-
 localhost:3000/users/signup
 POST route
 Headers Content-Type: application/json
@@ -99,8 +97,10 @@ Authorization Bearer <your_token_after_user_login>
 localhost:3000/orders/5bb4cb1fd7af15040533d09d
 DELETE route
 Headers Content-Type: application/json
-Authorization Bearer <your_token_after_user_login>
+Authorization Bearer <your_token_after_user_logins>
+
 -------------------------------------------------------------------------------------------
+
 package.json
 
   "scripts": {
@@ -117,4 +117,6 @@ package.json
   }
 
 Run using command:  npm test
+
+
 -------------------------------------------------------------------------------------------

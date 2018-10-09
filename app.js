@@ -1,5 +1,4 @@
 const express     = require('express'),
-       morgan     = require('morgan'),
        bodyParser = require('body-parser'),
        mongoose   = require('mongoose'),
        app        = express();
@@ -8,14 +7,30 @@ const productRoutes = require('./api/routes/products'),
       orderRoutes   = require('./api/routes/orders'),
       userRoutes    = require('./api/routes/users');
 
-const nodemon = require('./nodemon');
+const {createLogger, format, transports} = require('winston'),
+      {combine, timestamp, prettyPrint } = format;
 
-app.use(morgan('dev'));    
+
+const logger = createLogger({
+    transports: [
+        new transports.File({
+            filename: './logs/api.out',
+        }),
+        new transports.File({
+            filename: './logs/api.err',
+        })
+    ],
+    format: combine(timestamp(), prettyPrint())
+});
+
+logger.info('Going to initialize multer');
+
 app.use('./uploads', express.static('uploads')); // make multer images public
 app.use(bodyParser.urlencoded({limit: '50mb',extended: true})); // for parsing application/x-www-form-urlencoded
 app.use(bodyParser.json({limit: '50mb'})); // for parsing application/json
 
 // handle cross origin resource sharing, allow clients to access restful api urls
+logger.info('Going to initialize CORS');
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*'); // allow all urls
     res.header(
@@ -29,6 +44,7 @@ app.use((req, res, next) => {
     next();
 });
 
+logger.info('Going to setup MongoDB Atlas connection string');
 const uri = "mongodb+srv://root:" + process.env.ATLAS_MONGO_PW + "@cluster1-fbbro.mongodb.net/ProdOrdAPI?retryWrites=true"
 mongoose.connect(
     uri,
@@ -36,8 +52,13 @@ mongoose.connect(
 );
 
 // Handle products and orders routes
+logger.info('Going to handle /products route');
 app.use('/products', productRoutes);
+
+logger.info('Going to handle /orders route');
 app.use('/orders', orderRoutes);
+
+logger.info('Going to handle /users route');
 app.use('/users', userRoutes);
 
 app.use((req, res, next) => {
@@ -54,12 +75,5 @@ app.use((error, req, res, next) => {
         }
     });
 });
-
-// middleware  
-// app.use((req, res, next) => {
-//     res.status(200).json({
-//         message: 'It works!'
-//     });
-// });
 
 module.exports = app ;
